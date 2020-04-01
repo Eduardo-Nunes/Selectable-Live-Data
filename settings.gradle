@@ -1,0 +1,3 @@
+rootProject.name='SelectableLiveData'
+include ':app'
+include ':selectablelistlivedata'
