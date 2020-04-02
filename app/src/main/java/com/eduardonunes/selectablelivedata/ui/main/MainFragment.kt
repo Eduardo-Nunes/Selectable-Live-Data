@@ -9,7 +9,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.eduardonunes.selectablelistlivedata.infrastructure.ListHolder
 import com.eduardonunes.selectablelivedata.R
-import com.eduardonunes.selectablelivedata.ui.main.models.DumbData
+import com.eduardonunes.selectablelivedata.ui.extensions.changeVisibility
+import com.eduardonunes.selectablelivedata.ui.main.adapter.DumbAdapter
 import com.eduardonunes.selectablelivedata.ui.main.models.SelectableDumbData
 import kotlinx.android.synthetic.main.main_fragment.*
 
@@ -32,17 +33,22 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        initViews()
         initData()
         initListeners()
     }
 
-    private fun initListeners() {
-        messageView.setOnClickListener { viewModel.initData() }
+    private fun initViews() {
+        setDumbAdapter()
+    }
+
+    private fun setDumbAdapter() {
+        singleSelectionList.adapter = DumbAdapter(viewModel.singleSelectionData, viewModel::singleSelect)
+        multiSelectionList.adapter = DumbAdapter(viewModel.multiSelectionData, viewModel::multiSelect)
     }
 
     private fun initData() = with(viewModel) {
         message.observe(viewLifecycleOwner, Observer(::bindMessage))
-        dumbListData.observe(viewLifecycleOwner, Observer(::bindDumbList))
         multiSelectionData.observe(viewLifecycleOwner, Observer(::bindMultiList))
         singleSelectionData.observe(viewLifecycleOwner, Observer(::bindSingleList))
     }
@@ -52,21 +58,23 @@ class MainFragment : Fragment() {
         messageView.changeVisibility(!message.isNullOrEmpty())
     }
 
-    private fun bindDumbList(listHolder: ListHolder<DumbData>) {
-
-    }
-
     private fun bindMultiList(listHolder: ListHolder<SelectableDumbData>) {
-
+        if (listHolder.size() < 1) return
+        if (multiSelectionList.adapter == null) setDumbAdapter()
+        listHolder.applyChange(multiSelectionList.adapter!!)
     }
 
     private fun bindSingleList(listHolder: ListHolder<SelectableDumbData>) {
-
+        if (listHolder.size() < 1) return
+        if (singleSelectionList.adapter == null) setDumbAdapter()
+        listHolder.applyChange(singleSelectionList.adapter!!)
     }
 
-}
-
-fun View.changeVisibility(show: Boolean, typeHide: Int = View.GONE) {
-    if (this.visibility == View.VISIBLE && show) return
-    visibility = if (show) View.VISIBLE else typeHide
+    private fun initListeners() {
+        messageView.setOnClickListener { viewModel.initData() }
+        selectableTypeGroup.setOnCheckedChangeListener { _, checkedId ->
+            multiSelectionList.changeVisibility(checkedId == R.id.multipleSelectionOption)
+            singleSelectionList.changeVisibility(checkedId == R.id.singleSelectionOption)
+        }
+    }
 }

@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">SelectableLiveData</string>
-    <string name="no_selection">sem seleção</string>
     <string name="single_selection">seleção única</string>
     <string name="multi_selection">seleção múltipla</string>
     <string name="lista_vazia">lista vazia, clique aqui para iniciar</string>
     <string name="empty" />
+    <string name="position">item_position</string>
 </resources>
